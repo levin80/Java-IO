@@ -1,23 +1,24 @@
 package com.anxpp.io.calculator.aio;
-import java.util.Scanner;
 import com.anxpp.io.calculator.aio.client.Client;
 import com.anxpp.io.calculator.aio.server.Server;
+
+import java.util.Scanner;
 /**
- * ²âÊÔ·½·¨
+ * æµ‹è¯•æ–¹æ³•
  * @author yangtao__anxpp.com
  * @version 1.0
  */
 public class Test {
-	//²âÊÔÖ÷·½·¨
+	//æµ‹è¯•ä¸»æ–¹æ³•
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception{
-		//ÔËĞĞ·şÎñÆ÷
+		//è¿è¡ŒæœåŠ¡å™¨
 		Server.start();
-		//±ÜÃâ¿Í»§¶ËÏÈÓÚ·şÎñÆ÷Æô¶¯Ç°Ö´ĞĞ´úÂë
+		//é¿å…å®¢æˆ·ç«¯å…ˆäºæœåŠ¡å™¨å¯åŠ¨å‰æ‰§è¡Œä»£ç 
 		Thread.sleep(100);
-		//ÔËĞĞ¿Í»§¶Ë 
+		//è¿è¡Œå®¢æˆ·ç«¯
 		Client.start();
-		System.out.println("ÇëÊäÈëÇëÇóÏûÏ¢£º");
+		System.out.println("è¯·è¾“å…¥è¯·æ±‚æ¶ˆæ¯ï¼š");
 		Scanner scanner = new Scanner(System.in);
 		while(Client.sendMsg(scanner.nextLine()));
 	}

@@ -19,7 +19,7 @@ public class Client implements Runnable{
     	new Thread(new Client()).start();
 		@SuppressWarnings("resource")
 		Scanner scanner = new Scanner(System.in);
-		while(client.sendMsg(scanner.nextLine()));
+		while(client.sendMsg(scanner.nextLine())){};
     }
 
 	@Override

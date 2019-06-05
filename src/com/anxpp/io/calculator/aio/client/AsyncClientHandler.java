@@ -1,67 +1,74 @@
 package com.anxpp.io.calculator.aio.client;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CountDownLatch;
+
 public class AsyncClientHandler implements CompletionHandler<Void, AsyncClientHandler>, Runnable {
-	private AsynchronousSocketChannel clientChannel;
-	private String host;
-	private int port;
-	private CountDownLatch latch;
-	public AsyncClientHandler(String host, int port) {
-		this.host = host;
-		this.port = port;
-		try {
-			//´´½¨Òì²½µÄ¿Í»§¶ËÍ¨µÀ
-			clientChannel = AsynchronousSocketChannel.open();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	@Override
-	public void run() {
-		//´´½¨CountDownLatchµÈ´ı
-		latch = new CountDownLatch(1);
-		//·¢ÆğÒì²½Á¬½Ó²Ù×÷£¬»Øµ÷²ÎÊı¾ÍÊÇÕâ¸öÀà±¾Éí£¬Èç¹ûÁ¬½Ó³É¹¦»á»Øµ÷completed·½·¨
-		clientChannel.connect(new InetSocketAddress(host, port), this, this);
-		try {
-			latch.await();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		try {
-			clientChannel.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	//Á¬½Ó·şÎñÆ÷³É¹¦
-	//ÒâÎ¶×ÅTCPÈı´ÎÎÕÊÖÍê³É
-	@Override
-	public void completed(Void result, AsyncClientHandler attachment) {
-		System.out.println("¿Í»§¶Ë³É¹¦Á¬½Óµ½·şÎñÆ÷...");
-	}
-	//Á¬½Ó·şÎñÆ÷Ê§°Ü
-	@Override
-	public void failed(Throwable exc, AsyncClientHandler attachment) {
-		System.err.println("Á¬½Ó·şÎñÆ÷Ê§°Ü...");
-		exc.printStackTrace();
-		try {
-			clientChannel.close();
-			latch.countDown();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	//Ïò·şÎñÆ÷·¢ËÍÏûÏ¢
-	public void sendMsg(String msg){
-		byte[] req = msg.getBytes();
-		ByteBuffer writeBuffer = ByteBuffer.allocate(req.length);
-		writeBuffer.put(req);
-		writeBuffer.flip();
-		//Òì²½Ğ´
-		clientChannel.write(writeBuffer, writeBuffer,new WriteHandler(clientChannel, latch));
-	}
+    private AsynchronousSocketChannel clientChannel;
+    private String host;
+    private int port;
+    private CountDownLatch latch;
+
+    public AsyncClientHandler(String host, int port) {
+        this.host = host;
+        this.port = port;
+        try {
+            //åˆ›å»ºå¼‚æ­¥çš„å®¢æˆ·ç«¯é€šé“
+            clientChannel = AsynchronousSocketChannel.open();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+        //åˆ›å»ºCountDownLatchç­‰å¾…
+        latch = new CountDownLatch(1);
+        //å‘èµ·å¼‚æ­¥è¿æ¥æ“ä½œï¼Œå›è°ƒå‚æ•°å°±æ˜¯è¿™ä¸ªç±»æœ¬èº«ï¼Œå¦‚æœè¿æ¥æˆåŠŸä¼šå›è°ƒcompletedæ–¹æ³•
+        clientChannel.connect(new InetSocketAddress(host, port), this, this);
+        try {
+            latch.await();
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        try {
+            clientChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //è¿æ¥æœåŠ¡å™¨æˆåŠŸ
+    //æ„å‘³ç€TCPä¸‰æ¬¡æ¡æ‰‹å®Œæˆ
+    @Override
+    public void completed(Void result, AsyncClientHandler attachment) {
+        System.out.println("å®¢æˆ·ç«¯æˆåŠŸè¿æ¥åˆ°æœåŠ¡å™¨...");
+    }
+
+    //è¿æ¥æœåŠ¡å™¨å¤±è´¥
+    @Override
+    public void failed(Throwable exc, AsyncClientHandler attachment) {
+        System.err.println("è¿æ¥æœåŠ¡å™¨å¤±è´¥...");
+        exc.printStackTrace();
+        try {
+            clientChannel.close();
+            latch.countDown();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //å‘æœåŠ¡å™¨å‘é€æ¶ˆæ¯
+    public void sendMsg(String msg) {
+        byte[] req = msg.getBytes();
+        ByteBuffer writeBuffer = ByteBuffer.allocate(req.length);
+        writeBuffer.put(req);
+        writeBuffer.flip();
+        //å¼‚æ­¥å†™
+        clientChannel.write(writeBuffer, writeBuffer, new WriteHandler(clientChannel, latch));
+    }
 }

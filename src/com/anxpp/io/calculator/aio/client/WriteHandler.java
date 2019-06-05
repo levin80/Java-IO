@@ -1,35 +1,39 @@
 package com.anxpp.io.calculator.aio.client;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CountDownLatch;
+
 public class WriteHandler implements CompletionHandler<Integer, ByteBuffer> {
-	private AsynchronousSocketChannel clientChannel;
-	private CountDownLatch latch;
-	public WriteHandler(AsynchronousSocketChannel clientChannel,CountDownLatch latch) {
-		this.clientChannel = clientChannel;
-		this.latch = latch;
-	}
-	@Override
-	public void completed(Integer result, ByteBuffer buffer) {
-		//Íê³ÉÈ«²¿Êı¾İµÄĞ´Èë
-		if (buffer.hasRemaining()) {
-			clientChannel.write(buffer, buffer, this);
-		}
-		else {
-			//¶ÁÈ¡Êı¾İ
-			ByteBuffer readBuffer = ByteBuffer.allocate(1024);
-			clientChannel.read(readBuffer,readBuffer,new ReadHandler(clientChannel, latch));
-		}
-	}
-	@Override
-	public void failed(Throwable exc, ByteBuffer attachment) {
-		System.err.println("Êı¾İ·¢ËÍÊ§°Ü...");
-		try {
-			clientChannel.close();
-			latch.countDown();
-		} catch (IOException e) {
-		}
-	}
+    private AsynchronousSocketChannel clientChannel;
+    private CountDownLatch latch;
+
+    public WriteHandler(AsynchronousSocketChannel clientChannel, CountDownLatch latch) {
+        this.clientChannel = clientChannel;
+        this.latch = latch;
+    }
+
+    @Override
+    public void completed(Integer result, ByteBuffer buffer) {
+        //å®Œæˆå…¨éƒ¨æ•°æ®çš„å†™å…¥
+        if (buffer.hasRemaining()) {
+            clientChannel.write(buffer, buffer, this);
+        } else {
+            //è¯»å–æ•°æ®
+            ByteBuffer readBuffer = ByteBuffer.allocate(1024);
+            clientChannel.read(readBuffer, readBuffer, new ReadHandler(clientChannel, latch));
+        }
+    }
+
+    @Override
+    public void failed(Throwable exc, ByteBuffer attachment) {
+        System.err.println("æ•°æ®å‘é€å¤±è´¥...");
+        try {
+            clientChannel.close();
+            latch.countDown();
+        } catch (IOException e) {
+        }
+    }
 }

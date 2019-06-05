@@ -1,45 +1,48 @@
 package com.anxpp.io.calculator.bio;
+
 import java.io.IOException;
 import java.util.Random;
+
 /**
- * ²âÊÔ·½·¨
+ * æµ‹è¯•æ–¹æ³•
+ *
  * @author yangtao__anxpp.com
  * @version 1.0
  */
 public class Test {
-	//²âÊÔÖ÷·½·¨
-	public static void main(String[] args) throws InterruptedException {
-		//ÔËĞĞ·şÎñÆ÷
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					ServerBetter.start();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
-		//±ÜÃâ¿Í»§¶ËÏÈÓÚ·şÎñÆ÷Æô¶¯Ç°Ö´ĞĞ´úÂë
-		Thread.sleep(100);
-		//ÔËĞĞ¿Í»§¶Ë 
-		char operators[] = {'+','-','*','/'};
-		Random random = new Random(System.currentTimeMillis());
-		new Thread(new Runnable() {
-			@SuppressWarnings("static-access")
-			@Override
-			public void run() {
-				while(true){
-					//Ëæ»ú²úÉúËãÊõ±í´ïÊ½
-					String expression = random.nextInt(10)+""+operators[random.nextInt(4)]+(random.nextInt(10)+1);
-					Client.send(expression);
-					try {
-						Thread.currentThread().sleep(random.nextInt(1000));
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
-	}
+    //æµ‹è¯•ä¸»æ–¹æ³•
+    public static void main(String[] args) throws InterruptedException {
+        //è¿è¡ŒæœåŠ¡å™¨
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ServerBetter.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        //é¿å…å®¢æˆ·ç«¯å…ˆäºæœåŠ¡å™¨å¯åŠ¨å‰æ‰§è¡Œä»£ç 
+        Thread.sleep(100);
+        //è¿è¡Œå®¢æˆ·ç«¯
+        char operators[] = {'+', '-', '*', '/'};
+        Random random = new Random(System.currentTimeMillis());
+        new Thread(new Runnable() {
+            @SuppressWarnings("static-access")
+            @Override
+            public void run() {
+                while (true) {
+                    //éšæœºäº§ç”Ÿç®—æœ¯è¡¨è¾¾å¼
+                    String expression = random.nextInt(10) + "" + operators[random.nextInt(4)] + (random.nextInt(10) + 1);
+                    Client.send(expression);
+                    try {
+                        Thread.currentThread().sleep(random.nextInt(1000));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
 }

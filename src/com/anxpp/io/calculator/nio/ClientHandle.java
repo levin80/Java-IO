@@ -1,4 +1,5 @@
 package com.anxpp.io.calculator.nio;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -7,136 +8,144 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
+
 /**
- * NIO¿Í»§¶Ë
+ * NIOå®¢æˆ·ç«¯
+ *
  * @author yangtao__anxpp.com
  * @version 1.0
  */
-public class ClientHandle implements Runnable{
-	private String host;
-	private int port;
-	private Selector selector;
-	private SocketChannel socketChannel;
-	private volatile boolean started;
+public class ClientHandle implements Runnable {
+    private String host;
+    private int port;
+    private Selector selector;
+    private SocketChannel socketChannel;
+    private volatile boolean started;
 
-	public ClientHandle(String ip,int port) {
-		this.host = ip;
-		this.port = port;
-		try{
-			//´´½¨Ñ¡ÔñÆ÷
-			selector = Selector.open();
-			//´ò¿ª¼àÌıÍ¨µÀ
-			socketChannel = SocketChannel.open();
-			//Èç¹ûÎª true£¬Ôò´ËÍ¨µÀ½«±»ÖÃÓÚ×èÈûÄ£Ê½£»Èç¹ûÎª false£¬Ôò´ËÍ¨µÀ½«±»ÖÃÓÚ·Ç×èÈûÄ£Ê½
-			socketChannel.configureBlocking(false);//¿ªÆô·Ç×èÈûÄ£Ê½
-			started = true;
-		}catch(IOException e){
-			e.printStackTrace();
-			System.exit(1);
-		}
-	}
-	public void stop(){
-		started = false;
-	}
-	@Override
-	public void run() {
-		try{
-			doConnect();
-		}catch(IOException e){
-			e.printStackTrace();
-			System.exit(1);
-		}
-		//Ñ­»·±éÀúselector
-		while(started){
-			try{
-				//ÎŞÂÛÊÇ·ñÓĞ¶ÁĞ´ÊÂ¼ş·¢Éú£¬selectorÃ¿¸ô1s±»»½ĞÑÒ»´Î
-				selector.select(1000);
-				//×èÈû,Ö»ÓĞµ±ÖÁÉÙÒ»¸ö×¢²áµÄÊÂ¼ş·¢ÉúµÄÊ±ºò²Å»á¼ÌĞø.
+    public ClientHandle(String ip, int port) {
+        this.host = ip;
+        this.port = port;
+        try {
+            //åˆ›å»ºé€‰æ‹©å™¨
+            selector = Selector.open();
+            //æ‰“å¼€ç›‘å¬é€šé“
+            socketChannel = SocketChannel.open();
+            //å¦‚æœä¸º trueï¼Œåˆ™æ­¤é€šé“å°†è¢«ç½®äºé˜»å¡æ¨¡å¼ï¼›å¦‚æœä¸º falseï¼Œåˆ™æ­¤é€šé“å°†è¢«ç½®äºéé˜»å¡æ¨¡å¼
+            socketChannel.configureBlocking(false);//å¼€å¯éé˜»å¡æ¨¡å¼
+            started = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public void stop() {
+        started = false;
+    }
+
+    @Override
+    public void run() {
+        try {
+            doConnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        //å¾ªç¯éå†selector
+        while (started) {
+            try {
+                //æ— è®ºæ˜¯å¦æœ‰è¯»å†™äº‹ä»¶å‘ç”Ÿï¼Œselectoræ¯éš”1sè¢«å”¤é†’ä¸€æ¬¡
+                selector.select(1000);
+                //é˜»å¡,åªæœ‰å½“è‡³å°‘ä¸€ä¸ªæ³¨å†Œçš„äº‹ä»¶å‘ç”Ÿçš„æ—¶å€™æ‰ä¼šç»§ç»­.
 //				selector.select();
-				Set<SelectionKey> keys = selector.selectedKeys();
-				Iterator<SelectionKey> it = keys.iterator();
-				SelectionKey key = null;
-				while(it.hasNext()){
-					key = it.next();
-					it.remove();
-					try{
-						handleInput(key);
-					}catch(Exception e){
-						if(key != null){
-							key.cancel();
-							if(key.channel() != null){
-								key.channel().close();
-							}
-						}
-					}
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		//selector¹Ø±Õºó»á×Ô¶¯ÊÍ·ÅÀïÃæ¹ÜÀíµÄ×ÊÔ´
-		if(selector != null)
-			try{
-				selector.close();
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-	}
-	private void handleInput(SelectionKey key) throws IOException{
-		if(key.isValid()){
-			SocketChannel sc = (SocketChannel) key.channel();
-			if(key.isConnectable()){
-				if(sc.finishConnect());
-				else System.exit(1);
-			}
-			//¶ÁÏûÏ¢
-			if(key.isReadable()){
-				//´´½¨ByteBuffer£¬²¢¿ª±ÙÒ»¸ö1MµÄ»º³åÇø
-				ByteBuffer buffer = ByteBuffer.allocate(1024);
-				//¶ÁÈ¡ÇëÇóÂëÁ÷£¬·µ»Ø¶ÁÈ¡µ½µÄ×Ö½ÚÊı
-				int readBytes = sc.read(buffer);
-				//¶ÁÈ¡µ½×Ö½Ú£¬¶Ô×Ö½Ú½øĞĞ±à½âÂë
-				if(readBytes>0){
-					//½«»º³åÇøµ±Ç°µÄlimitÉèÖÃÎªposition=0£¬ÓÃÓÚºóĞø¶Ô»º³åÇøµÄ¶ÁÈ¡²Ù×÷
-					buffer.flip();
-					//¸ù¾İ»º³åÇø¿É¶Á×Ö½ÚÊı´´½¨×Ö½ÚÊı×é
-					byte[] bytes = new byte[buffer.remaining()];
-					//½«»º³åÇø¿É¶Á×Ö½ÚÊı×é¸´ÖÆµ½ĞÂ½¨µÄÊı×éÖĞ
-					buffer.get(bytes);
-					String result = new String(bytes,"UTF-8");
-					System.out.println("¿Í»§¶ËÊÕµ½ÏûÏ¢£º" + result);
-				}
-				//Ã»ÓĞ¶ÁÈ¡µ½×Ö½Ú ºöÂÔ
+                Set<SelectionKey> keys = selector.selectedKeys();
+                Iterator<SelectionKey> it = keys.iterator();
+                SelectionKey key = null;
+                while (it.hasNext()) {
+                    key = it.next();
+                    it.remove();
+                    try {
+                        handleInput(key);
+                    } catch (Exception e) {
+                        if (key != null) {
+                            key.cancel();
+                            if (key.channel() != null) {
+                                key.channel().close();
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+        //selectorå…³é—­åä¼šè‡ªåŠ¨é‡Šæ”¾é‡Œé¢ç®¡ç†çš„èµ„æº
+        if (selector != null)
+            try {
+                selector.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    }
+
+    private void handleInput(SelectionKey key) throws IOException {
+        if (key.isValid()) {
+            SocketChannel sc = (SocketChannel) key.channel();
+            if (key.isConnectable()) {
+                if (sc.finishConnect()) ;
+                else System.exit(1);
+            }
+            //è¯»æ¶ˆæ¯
+            if (key.isReadable()) {
+                //åˆ›å»ºByteBufferï¼Œå¹¶å¼€è¾Ÿä¸€ä¸ª1Mçš„ç¼“å†²åŒº
+                ByteBuffer buffer = ByteBuffer.allocate(1024);
+                //è¯»å–è¯·æ±‚ç æµï¼Œè¿”å›è¯»å–åˆ°çš„å­—èŠ‚æ•°
+                int readBytes = sc.read(buffer);
+                //è¯»å–åˆ°å­—èŠ‚ï¼Œå¯¹å­—èŠ‚è¿›è¡Œç¼–è§£ç 
+                if (readBytes > 0) {
+                    //å°†ç¼“å†²åŒºå½“å‰çš„limitè®¾ç½®ä¸ºposition=0ï¼Œç”¨äºåç»­å¯¹ç¼“å†²åŒºçš„è¯»å–æ“ä½œ
+                    buffer.flip();
+                    //æ ¹æ®ç¼“å†²åŒºå¯è¯»å­—èŠ‚æ•°åˆ›å»ºå­—èŠ‚æ•°ç»„
+                    byte[] bytes = new byte[buffer.remaining()];
+                    //å°†ç¼“å†²åŒºå¯è¯»å­—èŠ‚æ•°ç»„å¤åˆ¶åˆ°æ–°å»ºçš„æ•°ç»„ä¸­
+                    buffer.get(bytes);
+                    String result = new String(bytes, "UTF-8");
+                    System.out.println("å®¢æˆ·ç«¯æ”¶åˆ°æ¶ˆæ¯ï¼š" + result);
+                }
+                //æ²¡æœ‰è¯»å–åˆ°å­—èŠ‚ å¿½ç•¥
 //				else if(readBytes==0);
-				//Á´Â·ÒÑ¾­¹Ø±Õ£¬ÊÍ·Å×ÊÔ´
-				else if(readBytes<0){
-					key.cancel();
-					sc.close();
-				}
-			}
-		}
-	}
-	//Òì²½·¢ËÍÏûÏ¢
-	private void doWrite(SocketChannel channel,String request) throws IOException{
-		//½«ÏûÏ¢±àÂëÎª×Ö½ÚÊı×é
-		byte[] bytes = request.getBytes();
-		//¸ù¾İÊı×éÈİÁ¿´´½¨ByteBuffer
-		ByteBuffer writeBuffer = ByteBuffer.allocate(bytes.length);
-		//½«×Ö½ÚÊı×é¸´ÖÆµ½»º³åÇø
-		writeBuffer.put(bytes);
-		//flip²Ù×÷
-		writeBuffer.flip();
-		//·¢ËÍ»º³åÇøµÄ×Ö½ÚÊı×é
-		channel.write(writeBuffer);
-		//****´Ë´¦²»º¬´¦Àí¡°Ğ´°ë°ü¡±µÄ´úÂë
-	}
-	private void doConnect() throws IOException{
-		if(socketChannel.connect(new InetSocketAddress(host,port)));
-		else socketChannel.register(selector, SelectionKey.OP_CONNECT);
-	}
-	public void sendMsg(String msg) throws Exception{
-		socketChannel.register(selector, SelectionKey.OP_READ);
-		doWrite(socketChannel, msg);
-	}
+                //é“¾è·¯å·²ç»å…³é—­ï¼Œé‡Šæ”¾èµ„æº
+                else if (readBytes < 0) {
+                    key.cancel();
+                    sc.close();
+                }
+            }
+        }
+    }
+
+    //å¼‚æ­¥å‘é€æ¶ˆæ¯
+    private void doWrite(SocketChannel channel, String request) throws IOException {
+        //å°†æ¶ˆæ¯ç¼–ç ä¸ºå­—èŠ‚æ•°ç»„
+        byte[] bytes = request.getBytes();
+        //æ ¹æ®æ•°ç»„å®¹é‡åˆ›å»ºByteBuffer
+        ByteBuffer writeBuffer = ByteBuffer.allocate(bytes.length);
+        //å°†å­—èŠ‚æ•°ç»„å¤åˆ¶åˆ°ç¼“å†²åŒº
+        writeBuffer.put(bytes);
+        //flipæ“ä½œ
+        writeBuffer.flip();
+        //å‘é€ç¼“å†²åŒºçš„å­—èŠ‚æ•°ç»„
+        channel.write(writeBuffer);
+        //****æ­¤å¤„ä¸å«å¤„ç†â€œå†™åŠåŒ…â€çš„ä»£ç 
+    }
+
+    private void doConnect() throws IOException {
+        if (socketChannel.connect(new InetSocketAddress(host, port))) ;
+        else socketChannel.register(selector, SelectionKey.OP_CONNECT);
+    }
+
+    public void sendMsg(String msg) throws Exception {
+        socketChannel.register(selector, SelectionKey.OP_READ);
+        doWrite(socketChannel, msg);
+    }
 }

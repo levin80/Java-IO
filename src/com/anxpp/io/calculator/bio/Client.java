@@ -1,56 +1,61 @@
 package com.anxpp.io.calculator.bio;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
 /**
- * ×èÈûÊ½I/O´´½¨µÄ¿Í»§¶Ë
+ * é˜»å¡å¼I/Oåˆ›å»ºçš„å®¢æˆ·ç«¯
+ *
  * @author yangtao__anxpp.com
  * @version 1.0
  */
 public class Client {
-	//Ä¬ÈÏµÄ¶Ë¿ÚºÅ
-	private static int DEFAULT_SERVER_PORT = 12345;
-	private static String DEFAULT_SERVER_IP = "127.0.0.1";
-	public static void send(String expression){
-		send(DEFAULT_SERVER_PORT,expression);
-	}
-	public static void send(int port,String expression){
-		System.out.println("ËãÊõ±í´ïÊ½Îª£º" + expression);
-		Socket socket = null;
-		BufferedReader in = null;
-		PrintWriter out = null;
-		try{
-			socket = new Socket(DEFAULT_SERVER_IP,port);
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			out = new PrintWriter(socket.getOutputStream(),true);
-			out.println(expression);
-			System.out.println("___½á¹ûÎª£º" + in.readLine());
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			//Ò»ÏÂ±ØÒªµÄÇåÀí¹¤×÷
-			if(in != null){
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				in = null;
-			}
-			if(out != null){
-				out.close();
-				out = null;
-			}
-			if(socket != null){
-				try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				socket = null;
-			}
-		}
-	}
+    //é»˜è®¤çš„ç«¯å£å·
+    private static int DEFAULT_SERVER_PORT = 12345;
+    private static String DEFAULT_SERVER_IP = "127.0.0.1";
+
+    public static void send(String expression) {
+        send(DEFAULT_SERVER_PORT, expression);
+    }
+
+    public static void send(int port, String expression) {
+        System.out.println("ç®—æœ¯è¡¨è¾¾å¼ä¸ºï¼š" + expression);
+        Socket socket = null;
+        BufferedReader in = null;
+        PrintWriter out = null;
+        try {
+            socket = new Socket(DEFAULT_SERVER_IP, port);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream(), true);
+            out.println(expression);
+            System.out.println("___ç»“æœä¸ºï¼š" + in.readLine());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            //ä¸€ä¸‹å¿…è¦çš„æ¸…ç†å·¥ä½œ
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                in = null;
+            }
+            if (out != null) {
+                out.close();
+                out = null;
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                socket = null;
+            }
+        }
+    }
 }
