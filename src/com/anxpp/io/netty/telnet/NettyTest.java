@@ -20,7 +20,6 @@ import org.junit.Test;
 /**
  * @Title： Java-IO
  * @Description: [功能描述]
- * @author: <a href=mailto:lixiaowei1@jd.com>李晓伟</a>
  * @create: 2019/06/06 07:13
  */
 public class NettyTest {

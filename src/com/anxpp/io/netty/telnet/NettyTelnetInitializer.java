@@ -26,7 +26,6 @@ import io.netty.handler.codec.string.StringEncoder;
 /**
  * @Title： Java-IO
  * @Description: [功能描述]
- * @author: <a href=mailto:lixiaowei1@jd.com>李晓伟</a>
  * @create: 2019/06/06 07:12
  */
 public class NettyTelnetInitializer extends ChannelInitializer<SocketChannel> {
